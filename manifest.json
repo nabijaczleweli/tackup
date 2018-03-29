@@ -1,0 +1,28 @@
+{
+	"manifest_version": 2,
+	"name": "tackup",
+	"version": "0.1.0",
+	"author": "nabijaczleweli <nabijaczleweli@gmail.com>",
+
+	"description": "Continuously hard back up your tabs in Firefox.",
+
+	"icons": {
+		"48": "assets/tackup-48.png",
+		"96": "assets/tackup-96.png"
+	},
+
+	"applications": {
+		"gecko": {
+			"id": "tackup@nabijaczleweli.xyz",
+			"strict_min_version": "42.0"
+		}
+	},
+
+	"permissions": [
+		"tabs"
+	],
+
+	"background": {
+		"scripts": ["src/tackup.js"]
+	}
+}

@@ -1,0 +1,12 @@
+*
+!.*
+!*Makefile
+!*.sublime-project
+!*.md
+!Cargo.toml
+!manifest.json
+!LICENSE
+!src
+!src/**
+!assets
+!assets/**
