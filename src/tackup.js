@@ -27,6 +27,8 @@ const DEFAULT_CONFIG = {
 
 function setup_interval(config) {
 	let setup = config => {
+		if(typeof config !== "object")
+			config = config.config;
 		if(typeof config !== "object" || typeof config.interval !== "number")
 			config = DEFAULT_CONFIG;
 
@@ -41,9 +43,11 @@ function tab_event_callback() {
 	let now = (new Date()).toISOString();
 
 	browser.tabs.query({}).then(tabs => {
-		browser.storage.local.set({tabs: {time: now, tabs: tabs.map(tab => ({title: tab.title, url: tab.url, private: tab.incognito}))}})
-		    .then(()     => console.log("[tackup]", now, "Successfully saved", tabs.length, "tabs"),
-		          reason => console.log("[tackup]", now, "Failed to save", tabs.length, "tabs:", reason));
+		let data  = {};
+		data[now] = tabs.map(tab => ({title: tab.title, url: tab.url, private: tab.incognito}));
+
+		browser.storage.local.set(data).then(()     => console.log("[tackup]", now, "Successfully saved", tabs.length, "tabs"),
+		                                     reason => console.log("[tackup]", now, "Failed to save", tabs.length, "tabs:", reason));
 
 		setup_interval();
 	});
