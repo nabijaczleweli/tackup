@@ -1,0 +1,10 @@
+th {
+	text-align: left;
+}
+
+td.private {
+	background-image: url("chrome://browser/skin/privatebrowsing/private-browsing.svg");
+	background-position: center;
+	background-size: 1em;
+	background-repeat: no-repeat;
+}

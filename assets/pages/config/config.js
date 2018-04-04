@@ -48,5 +48,3 @@ window.addEventListener("load", () => {
 		    .then(() => console.log("Config set!"), err => console.log("Configuration setting error:", err));
 	});
 });
-
-browser.storage.local.get("config").then(out => console.log(out));
