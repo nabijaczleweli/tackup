@@ -3,6 +3,7 @@
 	"name": "tackup",
 	"version": "0.1.0",
 	"author": "nabijaczleweli <nabijaczleweli.xyz>",
+	"homepage_url": "https://github.com/nabijaczleweli/tackup",
 
 	"description": "Continuously back up your browser tabs.",
 

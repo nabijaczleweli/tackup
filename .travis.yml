@@ -1,0 +1,25 @@
+language: generic
+sudo: false
+cache: apt
+
+env: DEPLOY_FILE="$TRAVIS_BUILD_DIR/../tackup-$TRAVIS_TAG.xpi"
+addons:
+  apt:
+    packages:
+      - zip
+    sources:
+      - r-packages-trusty
+
+after_success:
+  - if [ "$TRAVIS_TAG" ]; then
+      zip -x .git -r9 "$DEPLOY_FILE" *;
+    fi
+
+deploy:
+  provider: releases
+  api-key:
+    secure: TH7RIEK0WgbJ3Q3uxtCyypLsHXTsD9aiAi4Ra5H5kE0TpZdcefoXKyYOHCCfmjwKu7Ps30sJfwmlp9KfWLRnTeNQNDXGQyGC/a+r5GLPj+kFEApRkSgXpvIpw7CKrRQHfR7su3tQJup4Ehmh9h6amBBHtMh88/Fo1bG1YaQ6gsMMd74iW8PkKdKPIwGmIqrQ67wn94MF//IZTdRtD4FQZ9Kxv/HOskIRMsa/8KVuqw7Zqs/XJuAXm6pv8iup/v6716uoU+03E16rrbgzcXvolDA/NRyskjPFGMyOcbpN9vhiYdvsnh84UiG38A+j6Y5/1UAXiE4SKocMbKcZSAGOVWOgcO4nHgZOq93GJVhtGOOAVe4aElGY4PFAmQEyExKLmuC5OmoYlJOiYAowmhlYSJfVBqTsWkbZIGEAV1uzNRZWnSkLZ79CJvaTdvQ7ZglahMJZPplq3dWF+CP+q7aDiihrxCUnI/GsxLYhzCnw2UunASybHfveAIKiQapS/LuzK4M2ACrea7olLsBZdGdDD0ZiKdqtL7mCkYUTgSEsPnWqqCvaKE1ivpUCtZUdmdcPJoKKZfvZ8ZMgnoWShsTrxHuKNVVobD0EPJAM2WVKd5NzKDA08/5SpwrdTosiYrurqHBlp97XELmrThv5CGhBEI+z6GJMPcV00gapssmMQYE=
+  file: "$DEPLOY_FILE"
+  skip_cleanup: true
+  on:
+    tags: true

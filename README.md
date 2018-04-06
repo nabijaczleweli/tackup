@@ -15,8 +15,8 @@ Clicking on "See saved tab lists…" will take you to a page with tabset listing
 ## Installation
 
 Get an `.xpi` from the [releases page](https://github.com/nabijaczleweli/tackup/releases) and install it
-  (how to do *that* depends on your browser; in Firefox, a drag&drop on the window is sufficient
-  (be warned, though: you might need to disable signature verification)).
+  (how to do *that* depends on your browser; in Firefox, a drag&drop onto `about:addons` is sufficient, or even just the fact that the filename ends with `.xpi` might be
+  (be warned, though: you might need to disable signature verification))
 
 For development purposes point `about:debugging`'s temporary add-on at the repo clone.
 
