@@ -109,8 +109,9 @@ window.addEventListener("load", () => {
 			timestamps.splice(config_idx, 1);  // JS is a good and intuitive language where the way to remove an array element is obviously via splice()
 		}
 
-		TABSET_COUNT.innerText     = timestamps.length;
-		TIMESTAMP_SELECT.innerHTML = timestamps.reduce((acc, val) => acc + `<option value="${val}">${val} - ${data[val].length} tabs</option>`, "");
+		TABSET_COUNT.innerText = timestamps.length;
+		TIMESTAMP_SELECT.innerHTML =
+		    timestamps.reduce((acc, val) => acc + `<option value="${val}">${val} - ${data[val].length} tab${data[val].length !== 1 ? "s" : ""}</option>\n`, "");
 
 		DOWNLOAD_ONE_BUTTON.addEventListener("click", () => {
 			if(data[TIMESTAMP_SELECT.value] !== undefined) {

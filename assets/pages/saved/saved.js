@@ -30,9 +30,10 @@ window.addEventListener("load", () => {
 	browser.storage.local.get(null).then(data => {
 		delete data.config;
 
-		let timestamps             = Object.keys(data).sort().reverse();
-		TABSET_COUNT.innerText     = timestamps.length;
-		TIMESTAMP_SELECT.innerHTML = timestamps.reduce((acc, val) => acc + `<option value="${val}">${val} - ${data[val].length} tabs</option>`, "");
+		let timestamps         = Object.keys(data).sort().reverse();
+		TABSET_COUNT.innerText = timestamps.length;
+		TIMESTAMP_SELECT.innerHTML =
+		    timestamps.reduce((acc, val) => acc + `<option value="${val}">${val} - ${data[val].length} tab${data[val].length !== 1 ? "s" : ""}</option>\n`, "");
 
 		TABSET_TABLE.hidden     = false;
 		let tabset_table_header = TABSET_TABLE.innerHTML;
@@ -41,7 +42,7 @@ window.addEventListener("load", () => {
 			TABSET_TABLE.innerHTML = data[TIMESTAMP_SELECT.value].reduce(
 			    (acc, val) => acc + `<tr><td ${val.private ? "class=\"private\"" : ""}></td> <td><a href="${
 					                                                                                            val.url.replace("\"", encodeURIComponent('"'))
-					                                                                                          }">${val.title}</a></td></tr>`,
+					                                                                                          }">${val.title}</a></td></tr>\n`,
 					tabset_table_header);
 		});
 		TIMESTAMP_SELECT.dispatchEvent(new CustomEvent("change", {}));
