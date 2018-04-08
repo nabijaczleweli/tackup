@@ -16,8 +16,17 @@
 				<option>Loading…</option>
 			</select>
 			<br />
-			<button id="download-all-button">Download</button> all <span id="tabset-count">…</span> tabsets.
+			<button id="download-all-button">Download</button> all <span id="tabset-count">…</span> tabsets<span id="config-additive" hidden> and config</span>.
 		</p>
+
+		<table>
+			<tr><td>Restore config:</td>
+			    <td><input type="file" accept=".json,application/json" id="restore-config" /></td>
+			    <td><strong id="restore-config-status"></strong></td></tr>
+			<tr><td>Restore config & tabsets:</td>
+			    <td><input type="file" accept=".json,application/json" id="restore-config-and-tabsets" /></td>
+			    <td><strong id="restore-config-and-tabsets-status"></strong></td></tr>
+		</table>
 
 		<p>
 			<a href="../config/index.html">Back to config…</a>
