@@ -39,10 +39,13 @@ window.addEventListener("load", () => {
 		let tabset_table_header = TABSET_TABLE.innerHTML;
 
 		TIMESTAMP_SELECT.addEventListener("change", () => {
+			let quote_escaped      = encodeURIComponent('"');
 			TABSET_TABLE.innerHTML = data[TIMESTAMP_SELECT.value].reduce(
-			    (acc, val) => acc + `<tr><td ${val.private ? "class=\"private\"" : ""}></td> <td><a href="${
-					                                                                                            val.url.replace("\"", encodeURIComponent('"'))
-					                                                                                          }">${val.title}</a></td></tr>\n`,
+			    (acc, val) =>
+			        acc +
+			        `<tr><td ${val.private ? "class=\"private\"" : ""}></td> <td><a href="${
+					                                                                            val.url.replace("\"", quote_escaped)
+					                                                                          }">${val.title.replace("<", "&lt;").replace(">", "&gt;")}</a></td></tr>\n`,
 					tabset_table_header);
 		});
 		TIMESTAMP_SELECT.dispatchEvent(new CustomEvent("change", {}));
