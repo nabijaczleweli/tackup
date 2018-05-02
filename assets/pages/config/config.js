@@ -24,7 +24,13 @@ const DEFAULT_CONFIG = {
 	interval: 10 * 60 * 1000
 };
 
-const LN_KIB = Math.log(1024);
+const LN_KIB           = Math.log(1024);
+const HUMAN_TIME_TABLE = [
+	[1000, "s"],
+	[60, "min."],
+	[60, "h"],
+	[24, "d."],
+];
 
 
 function validate_config(config) {
@@ -56,16 +62,48 @@ function human_readable_size(num) {
 	}
 }
 
+/// Get a human-consumable approximation of a `[count, unit]` pair from the specified millisecond count.
+function human_readable_time(ms) {
+	let next_human_idx = 0;
+	let time           = [ms, "ms"];
+	while(next_human_idx < HUMAN_TIME_TABLE.length && time[0] % HUMAN_TIME_TABLE[next_human_idx][0] < ((time[0] / HUMAN_TIME_TABLE[next_human_idx][0]) * 0.25)) {
+		let new_human = HUMAN_TIME_TABLE[next_human_idx];
+		time[0]       = Math.round(time[0] / new_human[0]);
+		time[1]       = new_human[1];
+		++next_human_idx;
+	}
+	return time;
+}
+
 
 window.addEventListener("load", () => {
-	const INTERVAL_INPUT       = document.getElementById("interval");
-	const CONFIG_FORM          = document.getElementById("config-form");
-	const BYTES_USED           = document.getElementById("bytes-used");
-	const BYTES_USED_CONTAINER = document.getElementById("bytes-used-container");
+	const INTERVAL_INPUT          = document.getElementById("interval");
+	const CONFIG_FORM             = document.getElementById("config-form");
+	const BYTES_USED              = document.getElementById("bytes-used");
+	const BYTES_USED_CONTAINER    = document.getElementById("bytes-used-container");
+	const INTERVAL_UNIT           = document.getElementById("interval-unit");
+	const INTERVAL_WITH_UNIT      = document.getElementById("interval-with-unit");
+	const INTERVAL_UNIT_CONTAINER = document.getElementById("interval-unit-container");
 
 	browser.storage.local.get("config").then(out => INTERVAL_INPUT.value = validate_config(out.config).interval, err => {
 		INTERVAL_INPUT.value = DEFAULT_CONFIG.interval;
 		console.log("Configuration acquisition error:", err);
+	});
+
+	INTERVAL_INPUT.addEventListener("keyup", () => {
+		let interval = parseInt(INTERVAL_INPUT.value);
+		if(!isNaN(interval)) {
+			let time = human_readable_time(interval);
+			console.log(time, time[1] == "ms", time[1] === "ms");
+			if(time[1] != "ms") {
+				INTERVAL_UNIT.innerText        = time[1];
+				INTERVAL_WITH_UNIT.innerText   = time[0];
+				INTERVAL_UNIT_CONTAINER.hidden = false;
+				return;
+			}
+		}
+
+		INTERVAL_UNIT_CONTAINER.hidden = true;
 	});
 
 	CONFIG_FORM.addEventListener("submit", ev => {
