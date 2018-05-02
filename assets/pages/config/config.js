@@ -85,12 +85,18 @@ window.addEventListener("load", () => {
 	const INTERVAL_WITH_UNIT      = document.getElementById("interval-with-unit");
 	const INTERVAL_UNIT_CONTAINER = document.getElementById("interval-unit-container");
 
-	browser.storage.local.get("config").then(out => INTERVAL_INPUT.value = validate_config(out.config).interval, err => {
-		INTERVAL_INPUT.value = DEFAULT_CONFIG.interval;
-		console.log("Configuration acquisition error:", err);
-	});
+	browser.storage.local.get("config").then(
+	    out => {
+		    INTERVAL_INPUT.value = validate_config(out.config).interval;
+		    INTERVAL_INPUT.dispatchEvent(new CustomEvent("change", {}));
+	    },
+	    err => {
+		    INTERVAL_INPUT.value = DEFAULT_CONFIG.interval;
+		    INTERVAL_INPUT.dispatchEvent(new CustomEvent("change", {}));
+		    console.log("Configuration acquisition error:", err);
+	    });
 
-	INTERVAL_INPUT.addEventListener("keyup", () => {
+	let human_interval_update_handler = () => {
 		let interval = parseInt(INTERVAL_INPUT.value);
 		if(!isNaN(interval)) {
 			let time = human_readable_time(interval);
@@ -104,7 +110,9 @@ window.addEventListener("load", () => {
 		}
 
 		INTERVAL_UNIT_CONTAINER.hidden = true;
-	});
+	};
+	INTERVAL_INPUT.addEventListener("keyup", human_interval_update_handler);
+	INTERVAL_INPUT.addEventListener("change", human_interval_update_handler);
 
 	CONFIG_FORM.addEventListener("submit", ev => {
 		ev.preventDefault();
