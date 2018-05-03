@@ -1,4 +1,4 @@
-# tackup [![Licence](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
+# tackup [![Build Status](https://travis-ci.org/nabijaczleweli/tackup.svg)](https://travis-ci.org/nabijaczleweli/tackup) [![Licence](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 Continuously back up your browser tabs.
 
 ## Usage & funxion
