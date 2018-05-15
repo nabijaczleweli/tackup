@@ -38,9 +38,7 @@ function download_backup(data, count, timestamp) {
 }
 
 function restore(input, status, tabsets) {
-	let err = (action, e) => {
-		status.innerText = `Failed to ${action}: ${e.message}`;
-	};
+	let err = (action, e) => status.innerText = `Failed to ${action}: ${e.message}`;
 
 	if(input.files.length !== 0) {
 		let reader = new FileReader();
