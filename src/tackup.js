@@ -27,7 +27,7 @@ const DEFAULT_CONFIG = {
 
 function setup_interval(config) {
 	let setup = config => {
-		if(typeof config !== "object")
+		if(typeof config === "object")
 			config = config.config;
 		if(typeof config !== "object" || typeof config.interval !== "number")
 			config = DEFAULT_CONFIG;

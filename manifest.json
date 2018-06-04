@@ -2,9 +2,9 @@
 	"manifest_version": 2,
 	"name": "tackup",
 	"version": "0.1.0",
-	"author": "nabijaczleweli <nabijaczleweli@gmail.com>",
+	"author": "nabijaczleweli <nabijaczleweli.xyz>",
 
-	"description": "Continuously hard back up your tabs in Firefox.",
+	"description": "Continuously back up your browser tabs.",
 
 	"icons": {
 		"48": "assets/icons/tackup-48.png",
