@@ -21,3 +21,9 @@ If you can't download addons from AMO, you can get an `.xpi` from the [releases 
   (be warned, though: you might need to disable signature verification)).
 
 For development purposes point `about:debugging`'s temporary add-on at the repo clone.
+
+## Special thanks
+
+To all who support further development on Patreon, in particular:
+
+  * ThePhD
