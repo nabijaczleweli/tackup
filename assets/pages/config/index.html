@@ -4,6 +4,8 @@
 		<meta charset="utf-8" />
 		<link rel="shortcut icon" href="../../icons/tackup.ico" type="image/x-icon" />
 
+		<link rel="stylesheet" href="config.css" />
+
 		<title>tackup config</title>
 
 		<script src="config.js"></script>
@@ -12,7 +14,15 @@
 	<body>
 		<form id="config-form">
 			<label>Inter-backup interval [ms] <input type="number" id="interval" /></label>
-				<span hidden="true" id="interval-unit-container">≈ <span id="interval-with-unit"></span> <span id="interval-unit"></span></span>
+				<span hidden="true" id="interval-unit-container">≈ <span id="interval-with-unit"></span> <span id="interval-unit"></span></span><br />
+
+			<label>Auto-delete backups <input type="checkbox" id="autodelete" /></label>
+				<span id="autodelete-maxage-container">
+					<label>older than [ms] <input type="number" id="autodelete-maxage" min="1" /></label>
+					<span hidden="true" id="autodelete-maxage-unit-container">≈ <span id="autodelete-maxage-with-unit"></span> <span id="autodelete-maxage-unit"></span></span>
+				</span><br />
+
+			<br />
 			<button type="submit">Save</button>
 		</form>
 

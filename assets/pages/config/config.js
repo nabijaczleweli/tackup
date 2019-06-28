@@ -21,7 +21,8 @@
 
 
 const DEFAULT_CONFIG = {
-	interval: 10 * 60 * 1000
+	interval: 10 * 60 * 1000,
+	autodelete_maxage: null,  // null for unset=never, number > 0 for max age of backup to remove on backup run
 };
 
 const LN_KIB           = Math.log(1024);
@@ -36,6 +37,10 @@ const HUMAN_TIME_TABLE = [
 function validate_config(config) {
 	if(typeof config !== "object" || typeof config.interval !== "number")
 		config = DEFAULT_CONFIG;
+
+	if(!((typeof config.autodelete_maxage === "object" && config.autodelete_maxage === null) ||
+	     (typeof config.autodelete_maxage === "number" && config.autodelete_maxage > 0)))
+		config.autodelete_maxage = DEFAULT_CONFIG.autodelete_maxage;
 
 	return config;
 }
@@ -75,50 +80,87 @@ function human_readable_time(ms) {
 	return time;
 }
 
-
-window.addEventListener("load", () => {
-	const INTERVAL_INPUT          = document.getElementById("interval");
-	const CONFIG_FORM             = document.getElementById("config-form");
-	const BYTES_USED              = document.getElementById("bytes-used");
-	const BYTES_USED_CONTAINER    = document.getElementById("bytes-used-container");
-	const INTERVAL_UNIT           = document.getElementById("interval-unit");
-	const INTERVAL_WITH_UNIT      = document.getElementById("interval-with-unit");
-	const INTERVAL_UNIT_CONTAINER = document.getElementById("interval-unit-container");
-
-	browser.storage.local.get("config").then(
-	    out => {
-		    INTERVAL_INPUT.value = validate_config(out.config).interval;
-		    INTERVAL_INPUT.dispatchEvent(new CustomEvent("change", {}));
-	    },
-	    err => {
-		    INTERVAL_INPUT.value = DEFAULT_CONFIG.interval;
-		    INTERVAL_INPUT.dispatchEvent(new CustomEvent("change", {}));
-		    console.log("Configuration acquisition error:", err);
-	    });
-
-	let human_interval_update_handler = () => {
-		let interval = parseInt(INTERVAL_INPUT.value);
+function unit_handler(input, unit, with_unit, unit_container) {
+	return () => {
+		let interval = parseInt(input.value);
 		if(!isNaN(interval)) {
 			let time = human_readable_time(interval);
-			console.log(time, time[1] == "ms", time[1] === "ms");
+			// console.log(time, time[1] == "ms", time[1] === "ms");
 			if(time[1] != "ms") {
-				INTERVAL_UNIT.innerText        = time[1];
-				INTERVAL_WITH_UNIT.innerText   = time[0];
-				INTERVAL_UNIT_CONTAINER.hidden = false;
+				unit.innerText        = time[1];
+				with_unit.innerText   = time[0];
+				unit_container.hidden = false;
 				return;
 			}
 		}
 
-		INTERVAL_UNIT_CONTAINER.hidden = true;
+		unit_container.hidden = true;
 	};
+}
+
+
+window.addEventListener("load", () => {
+	const INTERVAL_INPUT                   = document.getElementById("interval");
+	const AUTODELETE_INPUT                 = document.getElementById("autodelete");
+	const AUTODELETE_MAXAGE_INPUT          = document.getElementById("autodelete-maxage");
+	const CONFIG_FORM                      = document.getElementById("config-form");
+	const BYTES_USED                       = document.getElementById("bytes-used");
+	const BYTES_USED_CONTAINER             = document.getElementById("bytes-used-container");
+	const INTERVAL_UNIT                    = document.getElementById("interval-unit");
+	const INTERVAL_WITH_UNIT               = document.getElementById("interval-with-unit");
+	const INTERVAL_UNIT_CONTAINER          = document.getElementById("interval-unit-container");
+	const AUTODELETE_MAXAGE_CONTAINER      = document.getElementById("autodelete-maxage-container");
+	const AUTODELETE_MAXAGE_UNIT           = document.getElementById("autodelete-maxage-unit");
+	const AUTODELETE_MAXAGE_WITH_UNIT      = document.getElementById("autodelete-maxage-with-unit");
+	const AUTODELETE_MAXAGE_UNIT_CONTAINER = document.getElementById("autodelete-maxage-unit-container");
+
+
+	let load_config = loaded_config => {
+		INTERVAL_INPUT.value          = loaded_config.interval;
+		AUTODELETE_INPUT.checked      = loaded_config.autodelete_maxage !== null;
+		AUTODELETE_MAXAGE_INPUT.value = loaded_config.autodelete_maxage || loaded_config.interval * 100;
+
+		INTERVAL_INPUT.dispatchEvent(new CustomEvent("change", {}));
+		AUTODELETE_INPUT.dispatchEvent(new CustomEvent("change", {}));
+		AUTODELETE_MAXAGE_INPUT.dispatchEvent(new CustomEvent("change", {}));
+	};
+	browser.storage.local.get("config").then(
+	    out => {
+		    load_config(validate_config(out.config));
+	    },
+	    err => {
+		    load_config(DEFAULT_CONFIG);
+		    console.log("Configuration acquisition error:", err);
+	    });
+
+
+	let human_interval_update_handler = unit_handler(INTERVAL_INPUT, INTERVAL_UNIT, INTERVAL_WITH_UNIT, INTERVAL_UNIT_CONTAINER);
 	INTERVAL_INPUT.addEventListener("keyup", human_interval_update_handler);
 	INTERVAL_INPUT.addEventListener("change", human_interval_update_handler);
 
+	let human_autodelete_maxage_update_handler =
+	    unit_handler(AUTODELETE_MAXAGE_INPUT, AUTODELETE_MAXAGE_UNIT, AUTODELETE_MAXAGE_WITH_UNIT, AUTODELETE_MAXAGE_UNIT_CONTAINER);
+	AUTODELETE_MAXAGE_INPUT.addEventListener("keyup", human_autodelete_maxage_update_handler);
+	AUTODELETE_MAXAGE_INPUT.addEventListener("change", human_autodelete_maxage_update_handler);
+
+
+	AUTODELETE_INPUT.addEventListener("change", () => {
+		AUTODELETE_MAXAGE_INPUT.disabled = !AUTODELETE_INPUT.checked;
+
+		if(!AUTODELETE_INPUT.checked)
+			AUTODELETE_MAXAGE_CONTAINER.classList.add("disabled");
+		else
+			AUTODELETE_MAXAGE_CONTAINER.classList.remove("disabled");
+	});
+
+
 	CONFIG_FORM.addEventListener("submit", ev => {
 		ev.preventDefault();
-		browser.storage.local.set({config: {interval: parseInt(INTERVAL_INPUT.value)}})
+		browser.storage.local
+		    .set({config: {interval: parseInt(INTERVAL_INPUT.value), autodelete_maxage: AUTODELETE_INPUT.checked ? parseInt(AUTODELETE_MAXAGE_INPUT.value) : null}})
 		    .then(() => console.log("Config set!"), err => console.log("Configuration setting error:", err));
 	});
+
 
 	if(browser.storage.local.getBytesInUse) {
 		BYTES_USED_CONTAINER.hidden = false;
