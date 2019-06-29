@@ -57,15 +57,15 @@ function setup_interval(now_d) {
 				}
 
 				if(to_remove.length === 0)
-					console.log("[tackup]", now, "No tabsets older than", config.autodelete_maxage, "ms ago (", max_timestamp, ") found");
+					console.log("[tackup]", now, "No tabsets older than", config.autodelete_maxage, "ms (", max_timestamp, ") found");
 				else {
 					browser.storage.local.remove(to_remove).then(()  => console.log("[tackup]", now, "Removed", to_remove.length, " tabsets older than ", max_timestamp,
-                                                                         config.autodelete_maxage, "ms ago (", max_timestamp,
+                                                                         config.autodelete_maxage, "ms (", max_timestamp,
                                                                          "): ", to_remove.reduce((acc, cur, idx) => acc + (idx === 0 ? "" : ", ") + cur, "")),
 					                                             err => console.log("[tackup]", now, "Failed to remove", to_remove.length, " tabsets older than ",
-					                                                                max_timestamp, config.autodelete_maxage, "ms ago (", max_timestamp, "): ", err))
+					                                                                max_timestamp, config.autodelete_maxage, "ms (", max_timestamp, "): ", err))
 				}
-			}, err => console.log("[tackup]", now, "Failed to enumerate tabsets older than ", max_timestamp, "ms ago (", max_timestamp, "): ", err));
+			}, err => console.log("[tackup]", now, "Failed to enumerate tabsets older than ", max_timestamp, "ms (", max_timestamp, "): ", err));
 		}
 
 

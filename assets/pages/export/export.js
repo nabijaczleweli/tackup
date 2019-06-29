@@ -20,7 +20,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-const CONFIG_KEYS = ["interval"];
+const CONFIG_KEYS = ["interval", "autodelete_maxage"];
 
 
 function download_backup(data, count, timestamp) {
