@@ -31,6 +31,8 @@ function remove_backups(timestamps, container) {
 window.addEventListener("load", () => {
 	const REMOVE_ONE_BUTTON       = document.getElementById("remove-one-button");
 	const REMOVE_ALL_BUTTON       = document.getElementById("remove-all-button");
+	const REMOVE_OLDER_BUTTON     = document.getElementById("remove-older-button");
+	const REMOVE_NEWER_BUTTON     = document.getElementById("remove-newer-button");
 	const TABSET_COUNT            = document.getElementById("tabset-count");
 	const TABSET_SELECT_CONTAINER = document.getElementById("tabset-select-container");
 	const TIMESTAMP_SELECT        = document.getElementsByName("timestamp-select")[0];
@@ -47,27 +49,63 @@ window.addEventListener("load", () => {
 		update_timestamp_list();
 		TABSET_COUNT.innerText = timestamps.length;
 
+		let handle_empty_tabsets = () => {
+			if(timestamps.length === 0)
+				TIMESTAMP_SELECT.innerHTML = "<option>None left!</option>";
+		};
+
 		REMOVE_ONE_BUTTON.addEventListener("click", () => {
 			if(data[TIMESTAMP_SELECT.value] !== undefined) {
 				let timestamp_idx = timestamps.indexOf(TIMESTAMP_SELECT.value);
 				if(timestamp_idx !== -1) {
-					remove_backups(TIMESTAMP_SELECT.value);
+					remove_backups(TIMESTAMP_SELECT.value, TABSET_SELECT_CONTAINER);
 
 					timestamps.splice(timestamp_idx, 1);  // JS is a good and intuitive language where the way to remove an array element is obviously via splice()
 					update_timestamp_list();
 
 					TIMESTAMP_SELECT.value = timestamps[timestamp_idx === 0 ? 0 : timestamp_idx - 1];
 					TABSET_COUNT.innerText = timestamps.length;
+
+					handle_empty_tabsets();
+				}
+			}
+		});
+
+		REMOVE_OLDER_BUTTON.addEventListener("click", () => {
+			if(data[TIMESTAMP_SELECT.value] !== undefined) {
+				let timestamp_idx = timestamps.indexOf(TIMESTAMP_SELECT.value);
+				if(timestamp_idx !== -1 && timestamp_idx !== timestamps.length - 1) {
+					let to_remove = timestamps.splice(timestamp_idx + 1, timestamps.length - timestamp_idx);
+					update_timestamp_list();
+
+					remove_backups(to_remove, TABSET_SELECT_CONTAINER);
+
+					TIMESTAMP_SELECT.value = timestamps[timestamp_idx];
+					TABSET_COUNT.innerText = timestamps.length;
+				}
+			}
+		});
+
+		REMOVE_NEWER_BUTTON.addEventListener("click", () => {
+			if(data[TIMESTAMP_SELECT.value] !== undefined) {
+				let timestamp_idx = timestamps.indexOf(TIMESTAMP_SELECT.value);
+				if(timestamp_idx !== -1 && timestamp_idx !== 0) {
+					let to_remove = timestamps.splice(0, timestamp_idx);
+					update_timestamp_list();
+
+					remove_backups(to_remove, TABSET_SELECT_CONTAINER);
+
+					TIMESTAMP_SELECT.value = timestamps[0];
+					TABSET_COUNT.innerText = timestamps.length;
 				}
 			}
 		});
 
 		REMOVE_ALL_BUTTON.addEventListener("click", () => {
-			remove_backups(timestamps);
-			timestamps = [];
-			update_timestamp_list();
-			TIMESTAMP_SELECT.innerHTML = "<option>None left!</option>";
+			remove_backups(timestamps, TABSET_SELECT_CONTAINER);
+			timestamps             = [];
 			TABSET_COUNT.innerText = 0;
+			handle_empty_tabsets();
 		});
 
 		RESTORE_CONFIG.addEventListener("change", () => restore(RESTORE_CONFIG, RESTORE_CONFIG_STATUS, false));
