@@ -23,6 +23,7 @@
 const DEFAULT_CONFIG = {
 	interval: 10 * 60 * 1000,
 	autodelete_maxage: null,  // null for unset=never, number > 0 for max age of backup to remove on backup run
+	no_repeat_freshest: false,
 };
 
 const LN_KIB           = Math.log(1024);
@@ -35,12 +36,18 @@ const HUMAN_TIME_TABLE = [
 
 
 function validate_config(config) {
-	if(typeof config !== "object" || typeof config.interval !== "number")
+	if(typeof config !== "object")
 		config = DEFAULT_CONFIG;
+
+	if(typeof config.interval !== "number")
+		config.interval = DEFAULT_CONFIG.interval;
 
 	if(!((typeof config.autodelete_maxage === "object" && config.autodelete_maxage === null) ||
 	     (typeof config.autodelete_maxage === "number" && config.autodelete_maxage > 0)))
 		config.autodelete_maxage = DEFAULT_CONFIG.autodelete_maxage;
+
+	if(typeof config.no_repeat_freshest !== "boolean")
+		config.no_repeat_freshest = DEFAULT_CONFIG.no_repeat_freshest;
 
 	return config;
 }
@@ -113,6 +120,7 @@ window.addEventListener("load", () => {
 	const AUTODELETE_MAXAGE_UNIT           = document.getElementById("autodelete-maxage-unit");
 	const AUTODELETE_MAXAGE_WITH_UNIT      = document.getElementById("autodelete-maxage-with-unit");
 	const AUTODELETE_MAXAGE_UNIT_CONTAINER = document.getElementById("autodelete-maxage-unit-container");
+	const NO_REPEAT_FRESHEST_INPUT         = document.getElementById("no-repeat-freshest");
 
 
 	let load_config = loaded_config => {
@@ -157,7 +165,13 @@ window.addEventListener("load", () => {
 	CONFIG_FORM.addEventListener("submit", ev => {
 		ev.preventDefault();
 		browser.storage.local
-		    .set({config: {interval: parseInt(INTERVAL_INPUT.value), autodelete_maxage: AUTODELETE_INPUT.checked ? parseInt(AUTODELETE_MAXAGE_INPUT.value) : null}})
+		    .set({
+			    config: {
+				    interval: parseInt(INTERVAL_INPUT.value),
+				    autodelete_maxage: AUTODELETE_INPUT.checked ? parseInt(AUTODELETE_MAXAGE_INPUT.value) : null,
+				    no_repeat_freshest: NO_REPEAT_FRESHEST_INPUT.checked,
+			    }
+		    })
 		    .then(() => console.log("Config set!"), err => console.log("Configuration setting error:", err));
 	});
 

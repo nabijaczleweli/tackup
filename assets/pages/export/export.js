@@ -20,7 +20,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-const CONFIG_KEYS = ["interval", "autodelete_maxage"];
+const CONFIG_KEYS = ["interval", "autodelete_maxage", "no_repeat_freshest"];
 
 
 function download_backup(data, count, timestamp) {
@@ -58,7 +58,7 @@ function restore(input, status, tabsets) {
 
 				if(read.config)
 					for(let key of CONFIG_KEYS)
-						if(read.config[key])
+						if(key in read.config)
 							cfg[key] = read.config[key];
 
 				let to_write;
