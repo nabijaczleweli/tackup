@@ -23,57 +23,71 @@
 const DEFAULT_CONFIG = {
 	interval: 10 * 60 * 1000,
 	autodelete_maxage: null,  // null for unset=never, number > 0 for max age of backup to remove on backup run
+	no_repeat_freshest: false,
 };
 
 
-function setup_interval(now_d) {
-	let setup = config => {
-		if(typeof config === "object")
-			config = config.config;
-		if(typeof config !== "object" || typeof config.interval !== "number")
-			config = DEFAULT_CONFIG;
-		if(!((typeof config.autodelete_maxage === "object" && config.autodelete_maxage === null) ||
-		     (typeof config.autodelete_maxage === "number" && config.autodelete_maxage > 0)))
-			config.autodelete_maxage = DEFAULT_CONFIG.autodelete_maxage;
+function validate_config(config) {
+	if(typeof config !== "object")
+		config = DEFAULT_CONFIG;
 
+	if(typeof config.interval !== "number")
+		config.interval = DEFAULT_CONFIG.interval;
 
-		if(config.autodelete_maxage !== null) {
-			let now = now_d.toISOString();
+	if(!((typeof config.autodelete_maxage === "object" && config.autodelete_maxage === null) ||
+	     (typeof config.autodelete_maxage === "number" && config.autodelete_maxage > 0)))
+		config.autodelete_maxage = DEFAULT_CONFIG.autodelete_maxage;
 
-			let max_timestamp_d = new Date(now_d - config.autodelete_maxage);
-			let max_timestamp   = max_timestamp_d.toISOString();
+	if(typeof config.no_repeat_freshest !== "boolean")
+		config.no_repeat_freshest = DEFAULT_CONFIG.no_repeat_freshest;
 
-			browser.storage.local.get(null).then(data => {
-				let timestamps = Object.keys(data).sort().reverse();
-				let to_remove  = [];
+	return config;
+}
 
-				for(let i = timestamps.length - 1; i >= 0; --i) {
-					let timestamp = timestamps[i];
-					if(timestamp === "config")
-						continue;
+function setup_interval(config, now_d) {
+	if(config.autodelete_maxage !== null) {
+		let now = now_d.toISOString();
 
-					if(new Date(timestamp) < max_timestamp_d)
-						to_remove.push(timestamp);
-				}
+		let max_timestamp_d = new Date(now_d - config.autodelete_maxage);
+		let max_timestamp   = max_timestamp_d.toISOString();
 
-				if(to_remove.length === 0)
-					console.log("[tackup]", now, "No tabsets older than", config.autodelete_maxage, "ms (", max_timestamp, ") found");
-				else {
-					browser.storage.local.remove(to_remove).then(()  => console.log("[tackup]", now, "Removed", to_remove.length, " tabsets older than ", max_timestamp,
-                                                                         config.autodelete_maxage, "ms (", max_timestamp,
-                                                                         "): ", to_remove.reduce((acc, cur, idx) => acc + (idx === 0 ? "" : ", ") + cur, "")),
-					                                             err => console.log("[tackup]", now, "Failed to remove", to_remove.length, " tabsets older than ",
-					                                                                max_timestamp, config.autodelete_maxage, "ms (", max_timestamp, "): ", err))
-				}
-			}, err => console.log("[tackup]", now, "Failed to enumerate tabsets older than ", max_timestamp, "ms (", max_timestamp, "): ", err));
-		}
+		browser.storage.local.get(null).then(data => {
+			let timestamps = Object.keys(data).sort().reverse();
+			let to_remove  = [];
 
+			for(let i = timestamps.length - 1; i >= 0; --i) {
+				let timestamp = timestamps[i];
+				if(timestamp === "config")
+					continue;
 
-		console.log("[tackup]", "Saving again in", config.interval, "ms");
-		setTimeout(tab_event_callback, config.interval);
-	};
+				if(new Date(timestamp) < max_timestamp_d)
+					to_remove.push(timestamp);
+			}
 
-	browser.storage.local.get("config").then(setup, setup);
+			if(to_remove.length === 0)
+				console.log("[tackup]", now, "No tabsets older than", config.autodelete_maxage, "ms (", max_timestamp, ") found");
+			else {
+				browser.storage.local.remove(to_remove).then(()  => console.log("[tackup]", now, "Removed", to_remove.length, " tabsets older than ", max_timestamp,
+                                                                       config.autodelete_maxage, "ms (", max_timestamp,
+                                                                       "): ", to_remove.reduce((acc, cur, idx) => acc + (idx === 0 ? "" : ", ") + cur, "")),
+				                                             err => console.log("[tackup]", now, "Failed to remove", to_remove.length, " tabsets older than ",
+				                                                                max_timestamp, config.autodelete_maxage, "ms (", max_timestamp, "): ", err))
+			}
+		}, err => console.log("[tackup]", now, "Failed to enumerate tabsets older than ", max_timestamp, "ms (", max_timestamp, "): ", err));
+	}
+
+	console.log("[tackup]", "Potentially saving again in", config.interval, "ms");
+	setTimeout(tab_event_callback, config.interval);
+}
+
+/// https://stackoverflow.com/a/19494146/2851815
+function arr_eq(lhs, rhs) {
+	return lhs.length == rhs.length &&  //
+	       lhs.every((lelem, i) => {
+		       let relem = rhs[i];
+
+		       return Object.keys(lelem).every(key => lelem[key] == relem[key]);
+	       });
 }
 
 function tab_event_callback() {
@@ -81,13 +95,43 @@ function tab_event_callback() {
 	let now   = now_d.toISOString();
 
 	browser.tabs.query({}).then(tabs => {
-		let data  = {};
-		data[now] = tabs.map(tab => ({title: tab.title, url: tab.url, private: tab.incognito}));
+		let data      = {};
+		data[now]     = tabs.map(tab => ({title: tab.title, url: tab.url, private: tab.incognito}));
+		data.freshest = now;
 
-		browser.storage.local.set(data).then(()     => console.log("[tackup]", now, "Successfully saved", tabs.length, "tabs"),
-		                                     reason => console.log("[tackup]", now, "Failed to save", tabs.length, "tabs:", reason));
+		let maybe_save = cf => {
+			let config = validate_config(cf.config);
 
-		setup_interval(now_d);
+			let save_and_continue = save => {
+				if(save)
+					browser.storage.local.set(data).then(()     => console.log("[tackup]", now, "Successfully saved", tabs.length, "tabs"),
+					                                     reason => console.log("[tackup]", now, "Failed to save", tabs.length, "tabs:", reason));
+				else
+					console.log("[tackup]", now, "Current tabset equivalent to", cf.freshest, "– not saving")
+
+					setup_interval(config, now_d);
+			};
+
+			if(config.no_repeat_freshest) {
+				if(cf.freshest)
+					browser.storage.local.get(cf.freshest)
+					    .then(
+					        freshest_tabset => {
+						        save_and_continue(!arr_eq(freshest_tabset[cf.freshest], data[now]));
+					        },
+					        err => {
+						        console.log("[tackup]", now, "Couldn't find freshest tabset:", err);
+						        save_and_continue(true);
+					        });
+				else {
+					console.log("[tackup]", now, "Couldn't find freshest key and no_repeat_freshest specified");
+					save_and_continue(true);
+				}
+			} else
+				save_and_continue(true);
+		};
+
+		browser.storage.local.get(["config", "freshest"]).then(maybe_save, maybe_save);
 	});
 }
 

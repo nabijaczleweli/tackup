@@ -29,6 +29,7 @@ window.addEventListener("load", () => {
 
 	browser.storage.local.get(null).then(data => {
 		delete data.config;
+		delete data.freshest;
 
 		let timestamps         = Object.keys(data).sort().reverse();
 		TABSET_COUNT.innerText = timestamps.length;

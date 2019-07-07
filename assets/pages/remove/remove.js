@@ -40,9 +40,11 @@ window.addEventListener("load", () => {
 	browser.storage.local.get(null).then(data => {
 		let timestamps = Object.keys(data).sort().reverse();
 
-		let config_idx = timestamps.indexOf("config");
-		if(config_idx !== -1)
-			timestamps.splice(config_idx, 1);  // JS is a good and intuitive language where the way to remove an array element is obviously via splice()
+		for(let key of ["config", "freshest"]) {
+			let key_idx = timestamps.indexOf(key);
+			if(key_idx !== -1)
+				timestamps.splice(key_idx, 1);  // JS is a good and intuitive language where the way to remove an array element is obviously via splice()
+		}
 
 		let update_timestamp_list = () => TIMESTAMP_SELECT.innerHTML =
 		    timestamps.reduce((acc, val) => acc + `<option value="${val}">${val} - ${data[val].length} tab${data[val].length !== 1 ? "s" : ""}</option>\n`, "");

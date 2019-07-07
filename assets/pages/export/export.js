@@ -106,6 +106,9 @@ window.addEventListener("load", () => {
 			CONFIG_ADDITIVE.hidden = false;
 			timestamps.splice(config_idx, 1);  // JS is a good and intuitive language where the way to remove an array element is obviously via splice()
 		}
+		let freshest_idx = timestamps.indexOf("freshest");
+		if(freshest_idx !== -1)
+			timestamps.splice(freshest_idx, 1);  // JS is a good and intuitive language where the way to remove an array element is obviously via splice()
 
 		TABSET_COUNT.innerText = timestamps.length;
 		TIMESTAMP_SELECT.innerHTML =

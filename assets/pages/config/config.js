@@ -124,13 +124,13 @@ window.addEventListener("load", () => {
 
 
 	let load_config = loaded_config => {
-		INTERVAL_INPUT.value          = loaded_config.interval;
-		AUTODELETE_INPUT.checked      = loaded_config.autodelete_maxage !== null;
-		AUTODELETE_MAXAGE_INPUT.value = loaded_config.autodelete_maxage || loaded_config.interval * 100;
+		INTERVAL_INPUT.value           = loaded_config.interval;
+		AUTODELETE_INPUT.checked       = loaded_config.autodelete_maxage !== null;
+		AUTODELETE_MAXAGE_INPUT.value  = loaded_config.autodelete_maxage || loaded_config.interval * 100;
+		NO_REPEAT_FRESHEST_INPUT.value = loaded_config.no_repeat_freshest;
 
-		INTERVAL_INPUT.dispatchEvent(new CustomEvent("change", {}));
-		AUTODELETE_INPUT.dispatchEvent(new CustomEvent("change", {}));
-		AUTODELETE_MAXAGE_INPUT.dispatchEvent(new CustomEvent("change", {}));
+		for(let input of [INTERVAL_INPUT, AUTODELETE_INPUT, AUTODELETE_MAXAGE_INPUT, NO_REPEAT_FRESHEST_INPUT])
+			input.dispatchEvent(new CustomEvent("change", {}));
 	};
 	browser.storage.local.get("config").then(
 	    out => {
