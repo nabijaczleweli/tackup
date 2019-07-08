@@ -36,6 +36,7 @@ window.addEventListener("load", () => {
 	const TABSET_COUNT            = document.getElementById("tabset-count");
 	const TABSET_SELECT_CONTAINER = document.getElementById("tabset-select-container");
 	const TIMESTAMP_SELECT        = document.getElementsByName("timestamp-select")[0];
+	const LOCAL_DATETIMES         = document.getElementById("local-datetimes");
 
 	browser.storage.local.get(null).then(data => {
 		let timestamps = Object.keys(data).sort().reverse();
@@ -47,14 +48,12 @@ window.addEventListener("load", () => {
 		}
 
 		let update_timestamp_list = () => TIMESTAMP_SELECT.innerHTML =
-		    timestamps.reduce((acc, val) => acc + `<option value="${val}">${val} - ${data[val].length} tab${data[val].length !== 1 ? "s" : ""}</option>\n`, "");
+		    timestamps.length === 0 ? "<option>None left!</option>"
+		                            : timestamps.reduce((acc, val) => acc + `<option value="${val}">${LOCAL_DATETIMES.checked ? new Date(val) : val} - ${
+					                                                                  data[val].length} tab${data[val].length !== 1 ? "s" : ""}</option>\n`,
+						                                        "");
 		update_timestamp_list();
 		TABSET_COUNT.innerText = timestamps.length;
-
-		let handle_empty_tabsets = () => {
-			if(timestamps.length === 0)
-				TIMESTAMP_SELECT.innerHTML = "<option>None left!</option>";
-		};
 
 		REMOVE_ONE_BUTTON.addEventListener("click", () => {
 			if(data[TIMESTAMP_SELECT.value] !== undefined) {
@@ -67,8 +66,6 @@ window.addEventListener("load", () => {
 
 					TIMESTAMP_SELECT.value = timestamps[timestamp_idx === 0 ? 0 : timestamp_idx - 1];
 					TABSET_COUNT.innerText = timestamps.length;
-
-					handle_empty_tabsets();
 				}
 			}
 		});
@@ -107,10 +104,12 @@ window.addEventListener("load", () => {
 			remove_backups(timestamps, TABSET_SELECT_CONTAINER);
 			timestamps             = [];
 			TABSET_COUNT.innerText = 0;
-			handle_empty_tabsets();
 		});
 
-		RESTORE_CONFIG.addEventListener("change", () => restore(RESTORE_CONFIG, RESTORE_CONFIG_STATUS, false));
-		RESTORE_CONFIG_AND_TABSETS.addEventListener("change", () => restore(RESTORE_CONFIG_AND_TABSETS, RESTORE_CONFIG_AND_TABSETS_STATUS, true));
+		LOCAL_DATETIMES.addEventListener("change", () => {
+			let selected = TIMESTAMP_SELECT.value;
+			update_timestamp_list();
+			TIMESTAMP_SELECT.value = selected;
+		});
 	}, err => TABSET_SELECT_CONTAINER.innerHTML = `<strong>Failed to acquire tabsets: ${err}</strong>`);
 });

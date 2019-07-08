@@ -26,29 +26,39 @@ window.addEventListener("load", () => {
 	const TABSET_TABLE_CONTENT    = document.getElementById("tabset-table-content");
 	const TABSET_SELECT_CONTAINER = document.getElementById("tabset-select-container");
 	const TIMESTAMP_SELECT        = document.getElementsByName("timestamp-select")[0];
+	const LOCAL_DATETIMES         = document.getElementById("local-datetimes");
 
 	browser.storage.local.get(null).then(data => {
 		delete data.config;
 		delete data.freshest;
 
-		let timestamps         = Object.keys(data).sort().reverse();
-		TABSET_COUNT.innerText = timestamps.length;
-		TIMESTAMP_SELECT.innerHTML =
-		    timestamps.reduce((acc, val) => acc + `<option value="${val}">${val} - ${data[val].length} tab${data[val].length !== 1 ? "s" : ""}</option>\n`, "");
+		let timestamps            = Object.keys(data).sort().reverse();
+		TABSET_COUNT.innerText    = timestamps.length;
+		let update_timestamp_list = () => TIMESTAMP_SELECT.innerHTML =
+		    timestamps.length === 0 ? "<option>None found!</option>"
+		                            : timestamps.reduce((acc, val) => acc + `<option value="${val}">${LOCAL_DATETIMES.checked ? new Date(val) : val} - ${
+					                                                                  data[val].length} tab${data[val].length !== 1 ? "s" : ""}</option>\n`,
+						                                        "");
+		update_timestamp_list();
 
 		TABSET_TABLE.hidden     = false;
 		let tabset_table_header = TABSET_TABLE.innerHTML;
 
 		TIMESTAMP_SELECT.addEventListener("change", () => {
-			let quote_escaped      = encodeURIComponent('"');
-			TABSET_TABLE.innerHTML = data[TIMESTAMP_SELECT.value].reduce(
-			    (acc, val) =>
-			        acc +
-			        `<tr><td ${val.private ? "class=\"private\"" : ""}></td> <td><a href="${
-					                                                                            val.url.replace("\"", quote_escaped)
-					                                                                          }">${val.title.replace("<", "&lt;").replace(">", "&gt;")}</a></td></tr>\n`,
-					tabset_table_header);
+			if(data[TIMESTAMP_SELECT.value] !== undefined) {
+				let quote_escaped      = encodeURIComponent('"');
+				TABSET_TABLE.innerHTML = data[TIMESTAMP_SELECT.value].reduce(
+				    (acc, val) => acc + `<tr><td ${val.private ? "class=\"private\"" : ""}></td> <td><a href="${val.url.replace("\"", quote_escaped)}">${
+							                      val.title.replace("<", "&lt;").replace(">", "&gt;")}</a></td></tr>\n`,
+						tabset_table_header);
+			}
 		});
 		TIMESTAMP_SELECT.dispatchEvent(new CustomEvent("change", {}));
+
+		LOCAL_DATETIMES.addEventListener("change", () => {
+			let selected = TIMESTAMP_SELECT.value;
+			update_timestamp_list();
+			TIMESTAMP_SELECT.value = selected;
+		});
 	}, err => TABSET_SELECT_CONTAINER.innerHTML = `<strong>Failed to acquire tabsets: ${err}</strong>`);
 });

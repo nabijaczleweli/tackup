@@ -97,6 +97,7 @@ window.addEventListener("load", () => {
 	const RESTORE_CONFIG_STATUS             = document.getElementById("restore-config-status");
 	const RESTORE_CONFIG_AND_TABSETS_STATUS = document.getElementById("restore-config-and-tabsets-status");
 	const TIMESTAMP_SELECT                  = document.getElementsByName("timestamp-select")[0];
+	const LOCAL_DATETIMES                   = document.getElementById("local-datetimes");
 
 	browser.storage.local.get(null).then(data => {
 		let timestamps = Object.keys(data).sort().reverse();
@@ -110,9 +111,13 @@ window.addEventListener("load", () => {
 		if(freshest_idx !== -1)
 			timestamps.splice(freshest_idx, 1);  // JS is a good and intuitive language where the way to remove an array element is obviously via splice()
 
-		TABSET_COUNT.innerText = timestamps.length;
-		TIMESTAMP_SELECT.innerHTML =
-		    timestamps.reduce((acc, val) => acc + `<option value="${val}">${val} - ${data[val].length} tab${data[val].length !== 1 ? "s" : ""}</option>\n`, "");
+		TABSET_COUNT.innerText    = timestamps.length;
+		let update_timestamp_list = () => TIMESTAMP_SELECT.innerHTML =
+		    timestamps.length === 0 ? "<option>None found!</option>"
+		                            : timestamps.reduce((acc, val) => acc + `<option value="${val}">${LOCAL_DATETIMES.checked ? new Date(val) : val} - ${
+					                                                                  data[val].length} tab${data[val].length !== 1 ? "s" : ""}</option>\n`,
+						                                        "");
+		update_timestamp_list();
 
 		DOWNLOAD_ONE_BUTTON.addEventListener("click", () => {
 			if(data[TIMESTAMP_SELECT.value] !== undefined) {
@@ -126,5 +131,11 @@ window.addEventListener("load", () => {
 
 		RESTORE_CONFIG.addEventListener("change", () => restore(RESTORE_CONFIG, RESTORE_CONFIG_STATUS, false));
 		RESTORE_CONFIG_AND_TABSETS.addEventListener("change", () => restore(RESTORE_CONFIG_AND_TABSETS, RESTORE_CONFIG_AND_TABSETS_STATUS, true));
+
+		LOCAL_DATETIMES.addEventListener("change", () => {
+			let selected = TIMESTAMP_SELECT.value;
+			update_timestamp_list();
+			TIMESTAMP_SELECT.value = selected;
+		});
 	}, err => TABSET_SELECT_CONTAINER.innerHTML = `<strong>Failed to acquire tabsets: ${err}</strong>`);
 });
