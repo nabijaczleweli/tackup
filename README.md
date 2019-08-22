@@ -8,7 +8,7 @@ This was inspired by [Pirate](https://github.com/thecoshman)'s [tweet](https://t
 
 After [installation](#Installation), you can configure the backup interval in the standard addon config place under `about:addons`:
 
-![configuration screenshot](https://user-images.githubusercontent.com/6709544/42739920-f425e390-889f-11e8-8fd3-986f506454bb.png)
+![configuration screenshot](https://user-images.githubusercontent.com/6709544/63536977-04fa2c00-c515-11e9-9460-0aba6f5bd1e1.png)
 
 Clicking on "See saved tab lists…" will take you to a page with tabset listings, sorted freshest-to-oldest.
 
