@@ -10,6 +10,10 @@ After [installation](#Installation), you can configure the backup interval in th
 
 ![configuration screenshot](https://user-images.githubusercontent.com/6709544/63536977-04fa2c00-c515-11e9-9460-0aba6f5bd1e1.png)
 
+or by clicking the toolbar item in the top right:
+
+![browser action screnshot](https://user-images.githubusercontent.com/6709544/63630630-20e8f500-c61d-11e9-9228-8add11f409a1.png)
+
 Clicking on "See saved tab lists…" will take you to a page with tabset listings, sorted freshest-to-oldest.
 
 ## Installation

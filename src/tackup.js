@@ -137,4 +137,14 @@ function tab_event_callback() {
 }
 
 
+let config_url = browser.runtime.getURL("/assets/pages/config/index.html");
+browser.browserAction.onClicked.addListener(() => {
+	browser.tabs.query({url: config_url}).then(config_tab => {
+		if(config_tab[0])
+			browser.tabs.update(config_tab[0].id, {active: true}).then(() => {}, err => console.log("[tackup]", "Couldn't switch to config tab:", err));
+		else
+			browser.tabs.create({url: "/assets/pages/config/index.html"}).then(() => {}, err => console.log("[tackup]", "Couldn't create config tab:", err));
+	}, err => console.log("[tackup]", "Couldn't search for config tab:", err))
+});
+
 tab_event_callback();
