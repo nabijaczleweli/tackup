@@ -124,10 +124,10 @@ window.addEventListener("load", () => {
 
 
 	let load_config = loaded_config => {
-		INTERVAL_INPUT.value           = loaded_config.interval;
-		AUTODELETE_INPUT.checked       = loaded_config.autodelete_maxage !== null;
-		AUTODELETE_MAXAGE_INPUT.value  = loaded_config.autodelete_maxage || loaded_config.interval * 100;
-		NO_REPEAT_FRESHEST_INPUT.value = loaded_config.no_repeat_freshest;
+		INTERVAL_INPUT.value             = loaded_config.interval;
+		AUTODELETE_INPUT.checked         = loaded_config.autodelete_maxage !== null;
+		AUTODELETE_MAXAGE_INPUT.value    = loaded_config.autodelete_maxage || loaded_config.interval * 100;
+		NO_REPEAT_FRESHEST_INPUT.checked = loaded_config.no_repeat_freshest;
 
 		for(let input of [INTERVAL_INPUT, AUTODELETE_INPUT, AUTODELETE_MAXAGE_INPUT, NO_REPEAT_FRESHEST_INPUT])
 			input.dispatchEvent(new CustomEvent("change", {}));
