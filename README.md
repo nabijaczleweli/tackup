@@ -8,7 +8,7 @@ This was inspired by [Pirate](https://github.com/thecoshman)'s [tweet](https://t
 
 After [installation](#Installation), you can configure the backup interval in the standard addon config place under `about:addons`:
 
-![configuration screenshot](https://user-images.githubusercontent.com/6709544/63536977-04fa2c00-c515-11e9-9460-0aba6f5bd1e1.png)
+![configuration screenshot](https://user-images.githubusercontent.com/6709544/64699621-70e10c00-d4a5-11e9-9bd2-f7412fb50787.png)
 
 or by clicking the toolbar item in the top right:
 
