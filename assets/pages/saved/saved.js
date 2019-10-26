@@ -27,6 +27,7 @@ window.addEventListener("load", () => {
 	const TABSET_SELECT_CONTAINER = document.getElementById("tabset-select-container");
 	const TIMESTAMP_SELECT        = document.getElementsByName("timestamp-select")[0];
 	const LOCAL_DATETIMES         = document.getElementById("local-datetimes");
+	const OPEN_SELECTED           = document.getElementById("open-selected");
 
 	browser.storage.local.get(null).then(data => {
 		delete data.config;
@@ -49,8 +50,14 @@ window.addEventListener("load", () => {
 				let quote_escaped      = encodeURIComponent('"');
 				TABSET_TABLE.innerHTML = data[TIMESTAMP_SELECT.value].reduce(
 				    (acc, val) => acc + `<tr><td ${val.private ? "class=\"private\"" : ""}></td> <td><a href="${val.url.replace("\"", quote_escaped)}">${
-							                      val.title.replace("<", "&lt;").replace(">", "&gt;")}</a></td></tr>\n`,
+							                      val.title.replace("<", "&lt;").replace(">", "&gt;")}</a></td> <td><input type="checkbox" class="select-box"></input></td></tr>\n`,
 						tabset_table_header);
+
+				document.getElementById("main-select-box").addEventListener("change", ev => {
+					const MAIN_SELECT_BOX = ev.target;
+
+					Array.from(document.getElementsByClassName("select-box")).forEach(select_box => select_box.checked = MAIN_SELECT_BOX.checked);
+				});
 			}
 		});
 		TIMESTAMP_SELECT.dispatchEvent(new CustomEvent("change", {}));
@@ -59,6 +66,19 @@ window.addEventListener("load", () => {
 			let selected = TIMESTAMP_SELECT.value;
 			update_timestamp_list();
 			TIMESTAMP_SELECT.value = selected;
+		});
+
+		OPEN_SELECTED.addEventListener("click", () => {
+			Array.from(document.getElementsByClassName("select-box")).forEach(select_box => {
+				if(select_box.checked) {
+					let url = select_box.parentElement.parentElement.children[1].firstElementChild.href;
+
+					browser.tabs.create({
+						active: false,
+						url: url,
+					}).then(() => {}, err => console.log("Couldn't open tab", url, "due to", err));
+				}
+			});
 		});
 	}, err => TABSET_SELECT_CONTAINER.innerHTML = `<strong>Failed to acquire tabsets: ${err}</strong>`);
 });
