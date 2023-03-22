@@ -20,8 +20,13 @@
 		</span>
 
 		<table id="tabset-table" hidden>
-			<tr><th><span style="opacity: 0;">@</span></th> <th>Title &amp; URL</th> <th><input type="checkbox" id="main-select-box"></input></th></tr>
+			<tr><th><span style="opacity: 0;">@</span></th>
+			    <th class="window-icon"><span style="opacity: 0;">🗔</span></th>
+			    <th>Title &amp; URL</th>
+			    <th><label style="line-height: 0; /* Otherwise this row gets super tall */">∀ <input type="checkbox" id="all-select-box"></input></label></th>
+			    <th><label><span class="window-icon"><span style="opacity: 0;">🗔</span></span> <input id="window-select-number" type="text" list="windows" placeholder="↓" style="width: 2em;" disabled></label> <input type="checkbox" id="window-select-box" disabled></input></th></tr>
 		</table>
+		<datalist id="windows"></datalist>
 
 		<p>
 			<label>Display timestamps in local timezone <input type="checkbox" id="local-datetimes" /></label><br />

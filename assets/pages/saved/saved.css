@@ -2,6 +2,13 @@ th {
 	text-align: left;
 }
 
+.window-icon {
+	background-image: url("chrome://browser/skin/window.svg");
+	background-position: center;
+	background-size: 1em;
+	background-repeat: no-repeat;
+}
+
 td.private {
 	background-image: url("chrome://browser/skin/privatebrowsing/private-browsing.svg");
 	background-position: center;

@@ -28,6 +28,7 @@ window.addEventListener("load", () => {
 	const TIMESTAMP_SELECT        = document.getElementsByName("timestamp-select")[0];
 	const LOCAL_DATETIMES         = document.getElementById("local-datetimes");
 	const OPEN_SELECTED           = document.getElementById("open-selected");
+	const WINDOWS                 = document.getElementById("windows");
 
 	browser.storage.local.get(null).then(data => {
 		delete data.config;
@@ -44,20 +45,39 @@ window.addEventListener("load", () => {
 
 		TABSET_TABLE.hidden     = false;
 		let tabset_table_header = TABSET_TABLE.innerHTML;
+		let windows             = [];
 
 		TIMESTAMP_SELECT.addEventListener("change", () => {
 			if(data[TIMESTAMP_SELECT.value] !== undefined) {
 				let quote_escaped      = encodeURIComponent('"');
 				TABSET_TABLE.innerHTML = data[TIMESTAMP_SELECT.value].reduce(
-				    (acc, val) => acc + `<tr><td ${val.private ? "class=\"private\"" : ""}></td> <td><a href="${val.url.replace("\"", quote_escaped)}">${
-							                      val.title.replace("<", "&lt;").replace(">", "&gt;")}</a></td> <td><input type="checkbox" class="select-box"></input></td></tr>\n`,
+				    (acc, val) => acc + `<tr><td ${val.private ? "class=\"private\"" : ""}></td> <td>${("window" in val) ? val.window : ""}</td> <td><a href="${
+							                      val.url.replace("\"", quote_escaped)}">${
+								                    val.title.replace("<", "&lt;").replace(">", "&gt;")}</a></td> <td><input type="checkbox" class="select-box" ${
+									                  ("window" in val) ? `window=${val.window}` : ""}></input></td></tr>\n`,
 						tabset_table_header);
+				windows           = Array.from(data[TIMESTAMP_SELECT.value].reduce((acc, val) => {
+					          if("window" in val)
+            acc.add(val.window);
+          return acc;
+				          }, new Set()));
+				WINDOWS.innerHTML = windows.reduce((acc, val) => acc + `<option value=${val}>`, "");
 
-				document.getElementById("main-select-box").addEventListener("change", ev => {
-					const MAIN_SELECT_BOX = ev.target;
+				document.getElementById("all-select-box").addEventListener("change", ev => {
+					const ALL_SELECT_BOX = ev.target;
 
-					Array.from(document.getElementsByClassName("select-box")).forEach(select_box => select_box.checked = MAIN_SELECT_BOX.checked);
+					Array.from(document.getElementsByClassName("select-box")).forEach(select_box => select_box.checked = ALL_SELECT_BOX.checked);
 				});
+
+				const WINDOW_SELECT_BOX       = document.getElementById("window-select-box");
+				const WINDOW_SELECT_NUMBER    = document.getElementById("window-select-number");
+				WINDOW_SELECT_NUMBER.disabled = WINDOW_SELECT_BOX.disabled = !windows.length
+				if(WINDOW_SELECT_NUMBER.disabled)
+				WINDOW_SELECT_NUMBER.placeholder = "∅";
+
+				WINDOW_SELECT_BOX.addEventListener(
+				    "change", ev => Array.from(document.querySelectorAll(`.select-box[window="${WINDOW_SELECT_NUMBER.value.replace("\"", quote_escaped)}"]`))
+					                      .forEach(select_box => select_box.checked = WINDOW_SELECT_BOX.checked));
 			}
 		});
 		TIMESTAMP_SELECT.dispatchEvent(new CustomEvent("change", {}));
@@ -73,10 +93,12 @@ window.addEventListener("load", () => {
 				if(select_box.checked) {
 					let url = select_box.parentElement.parentElement.children[1].firstElementChild.href;
 
-					browser.tabs.create({
-						active: false,
-						url: url,
-					}).then(() => {}, err => console.log("Couldn't open tab", url, "due to", err));
+					browser.tabs
+					    .create({
+						    active: false,
+						    url: url,
+					    })
+					    .then(() => {}, err => console.log("Couldn't open tab", url, "due to", err));
 				}
 			});
 		});

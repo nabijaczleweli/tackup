@@ -97,7 +97,7 @@ function tab_event_callback() {
 
 	browser.tabs.query({}).then(tabs => {
 		let data      = {};
-		data[now]     = tabs.map(tab => ({title: tab.title, url: tab.url, private: tab.incognito}));
+		data[now]     = tabs.map(tab => ({title: tab.title, url: tab.url, private: tab.incognito, window: tab.windowId}));
 		data.freshest = now;
 
 		let maybe_save = cf => {
