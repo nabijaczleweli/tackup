@@ -20,12 +20,15 @@
 		</p>
 
 		<table>
-			<tr><td>Restore config:</td>
-			    <td><input type="file" accept=".json,application/json" id="restore-config" /></td>
-			    <td><strong id="restore-config-status"></strong></td></tr>
-			<tr><td>Restore config & tabsets:</td>
-			    <td><input type="file" accept=".json,application/json" id="restore-config-and-tabsets" /></td>
-			    <td><strong id="restore-config-and-tabsets-status"></strong></td></tr>
+			<tr><td>Restore</td>
+			    <td>
+			      <label style="display: block;"><input type="radio" name="restore-what" value=1 checked /> tabsets</label>
+			      <label style="display: block;"><input type="radio" name="restore-what" value=2         /> config</label>
+			      <label style="display: block;"><input type="radio" name="restore-what" value=3         /> both</label>
+			    </td>
+		      <td>from</td>
+			    <td><input type="file" accept=".json,application/json" id="restore-config-and-tabsets" /></td></tr>
+			<tr><td colspan="4"><strong id="restore-config-and-tabsets-status"></strong></td></tr>
 		</table>
 
 		<p>

@@ -37,7 +37,7 @@ function download_backup(data, count, timestamp) {
 	link.click();
 }
 
-function restore(input, status, tabsets) {
+function restore(input, status, tabsets, config) {
 	let err = (action, e) => status.innerText = `Failed to ${action}: ${e.message}`;
 
 	if(input.files.length !== 0) {
@@ -56,20 +56,31 @@ function restore(input, status, tabsets) {
 				else
 					cfg = {};
 
-				if(read.config)
+				if(config && !read.config && !tabsets) {
+					status.innerText = "No config in file.";
+					return;
+				}
+				if(!read.config)
+					config = false;
+
+				if(read.config) {
 					for(let key of CONFIG_KEYS)
 						if(key in read.config)
 							cfg[key] = read.config[key];
+				}
+				let freshest = read.freshest || undefined;
+				delete read.config;
+				delete read.freshest;
 
-				let to_write;
-				if(tabsets) {
-					read.config = cfg;
-					to_write    = read;
-				} else
-					to_write = {config: cfg};
+				let to_write = tabsets ? read : {};
+				if(config) {
+					to_write.config = cfg;
+					if(freshest)
+						to_write.freshest = freshest;
+				}
 
 				browser.storage.local.set(to_write).then(() => {
-					status.innerText = `Successfully loaded config${tabsets ? " and tabsets" : ""}!`;
+					status.innerText = `Successfully loaded ${tabsets ? "tabsets" : ""}${(tabsets && config) ? " and " : ""}${config ? "config" : ""}!`;
 					if(tabsets)
 						setTimeout(() => location.reload(), 1500);
 					else
@@ -92,10 +103,9 @@ window.addEventListener("load", () => {
 	const TABSET_COUNT                      = document.getElementById("tabset-count");
 	const CONFIG_ADDITIVE                   = document.getElementById("config-additive");
 	const TABSET_SELECT_CONTAINER           = document.getElementById("tabset-select-container");
-	const RESTORE_CONFIG                    = document.getElementById("restore-config");
 	const RESTORE_CONFIG_AND_TABSETS        = document.getElementById("restore-config-and-tabsets");
-	const RESTORE_CONFIG_STATUS             = document.getElementById("restore-config-status");
 	const RESTORE_CONFIG_AND_TABSETS_STATUS = document.getElementById("restore-config-and-tabsets-status");
+	const RESTORE_WHAT                      = Array.from(document.querySelectorAll('input[name="restore-what"]'));
 	const TIMESTAMP_SELECT                  = document.getElementsByName("timestamp-select")[0];
 	const LOCAL_DATETIMES                   = document.getElementById("local-datetimes");
 
@@ -129,8 +139,10 @@ window.addEventListener("load", () => {
 
 		DOWNLOAD_ALL_BUTTON.addEventListener("click", () => download_backup(data, timestamps.length, timestamps[timestamps.length - 1] + "-" + timestamps[0]));
 
-		RESTORE_CONFIG.addEventListener("change", () => restore(RESTORE_CONFIG, RESTORE_CONFIG_STATUS, false));
-		RESTORE_CONFIG_AND_TABSETS.addEventListener("change", () => restore(RESTORE_CONFIG_AND_TABSETS, RESTORE_CONFIG_AND_TABSETS_STATUS, true));
+		RESTORE_CONFIG_AND_TABSETS.addEventListener("change", () => {
+			let what = RESTORE_WHAT.reduce((acc, val) => val.checked ? parseInt(val.value) : acc, 0);
+			restore(RESTORE_CONFIG_AND_TABSETS, RESTORE_CONFIG_AND_TABSETS_STATUS, what & 1, what & 2)
+		});
 
 		LOCAL_DATETIMES.addEventListener("change", () => {
 			let selected = TIMESTAMP_SELECT.value;

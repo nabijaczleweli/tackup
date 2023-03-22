@@ -1,7 +1,11 @@
 {
 	"build_systems":
 	[
-		// JS is a good language
+		{
+			"working_dir": "$project_path",
+			"shell_cmd": "zip -x .git -r9 tackup-current.xpi *",
+			"name": "Pack tackup"
+		}
 	],
 	"folders":
 	[

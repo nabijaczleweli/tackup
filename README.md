@@ -31,3 +31,6 @@ For development purposes point `about:debugging`'s temporary add-on at the repo 
 To all who support further development on Patreon, in particular:
 
   * ThePhD
+  * Embark Studios
+  * Lars Strojny
+  * EvModder
