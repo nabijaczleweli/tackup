@@ -99,6 +99,7 @@ function restore(input, status, tabsets, config) {
 
 window.addEventListener("load", () => {
 	const DOWNLOAD_ONE_BUTTON               = document.getElementById("download-one-button");
+	const DOWNLOAD_ONE_INCLUDE_CONFIG       = document.getElementById("download-one-include-config");
 	const DOWNLOAD_ALL_BUTTON               = document.getElementById("download-all-button");
 	const TABSET_COUNT                      = document.getElementById("tabset-count");
 	const CONFIG_ADDITIVE                   = document.getElementById("config-additive");
@@ -133,6 +134,9 @@ window.addEventListener("load", () => {
 			if(data[TIMESTAMP_SELECT.value] !== undefined) {
 				let smol_data                     = {};
 				smol_data[TIMESTAMP_SELECT.value] = data[TIMESTAMP_SELECT.value];
+				if(DOWNLOAD_ONE_INCLUDE_CONFIG.checked)
+					if(data.config)
+						smol_data.config = data.config;
 				download_backup(smol_data, 1, TIMESTAMP_SELECT.value);
 			}
 		});
