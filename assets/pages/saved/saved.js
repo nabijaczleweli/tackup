@@ -71,9 +71,9 @@ window.addEventListener("load", () => {
 
 				const WINDOW_SELECT_BOX       = document.getElementById("window-select-box");
 				const WINDOW_SELECT_NUMBER    = document.getElementById("window-select-number");
-				WINDOW_SELECT_NUMBER.disabled = WINDOW_SELECT_BOX.disabled = !windows.length
+				WINDOW_SELECT_NUMBER.disabled = WINDOW_SELECT_BOX.disabled = !windows.length;
 				if(WINDOW_SELECT_NUMBER.disabled)
-				WINDOW_SELECT_NUMBER.placeholder = "∅";
+					WINDOW_SELECT_NUMBER.placeholder = "∅";
 
 				WINDOW_SELECT_BOX.addEventListener(
 				    "change", ev => Array.from(document.querySelectorAll(`.select-box[window="${WINDOW_SELECT_NUMBER.value.replace("\"", quote_escaped)}"]`))
