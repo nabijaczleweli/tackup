@@ -91,7 +91,7 @@ window.addEventListener("load", () => {
 		OPEN_SELECTED.addEventListener("click", () => {
 			Array.from(document.getElementsByClassName("select-box")).forEach(select_box => {
 				if(select_box.checked) {
-					let url = select_box.parentElement.parentElement.children[1].firstElementChild.href;
+					let url = select_box.parentElement.parentElement.children[2].firstElementChild.href;
 
 					browser.tabs
 					    .create({
