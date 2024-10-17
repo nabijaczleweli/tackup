@@ -53,7 +53,7 @@ window.addEventListener("load", () => {
 				TABSET_TABLE.innerHTML = data[TIMESTAMP_SELECT.value].reduce(
 				    (acc, val) => acc + `<tr><td ${val.private ? "class=\"private\"" : ""}></td> <td>${("window" in val) ? val.window : ""}</td> <td><a href="${
 							                      val.url.replace("\"", quote_escaped)}">${
-								                    val.title.replace("<", "&lt;").replace(">", "&gt;")}</a></td> <td><input type="checkbox" class="select-box" ${
+								                    (val.title || val.url).replace("<", "&lt;").replace(">", "&gt;")}</a></td> <td><input type="checkbox" class="select-box" ${
 									                  ("window" in val) ? `window=${val.window}` : ""}></input></td></tr>\n`,
 						tabset_table_header);
 				windows           = Array.from(data[TIMESTAMP_SELECT.value].reduce((acc, val) => {
